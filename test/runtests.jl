@@ -63,4 +63,19 @@ using Test
 
     @test !isready(lc)
 
+
+    lc = LengthChannel{Int}(l, b) do ch
+        for i = 1:100
+            put!(ch, i)
+        end
+    end
+
+    c = 0
+    for e in lc
+        c += 1
+        @test e == c
+    end
+    @test c == l
+
+
 end
