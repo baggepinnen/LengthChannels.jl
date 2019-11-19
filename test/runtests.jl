@@ -3,110 +3,134 @@ using Test
 
 @testset "LengthChannels.jl" begin
     l,b = 10, 4
-    lc = LengthChannel{Int}(l, b) do ch
-        for i = 1:100
-            put!(ch, i)
+
+    @testset "Typed Constructors" begin
+        @info "Testing Constructors"
+
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
         end
-    end
 
-    @test eltype(lc) <: Int
+        @test eltype(lc) <: Int
 
-    @test length(lc) == l
-    cc = collect(lc)
-    @test length(cc) == l
-    @test cc == 1:l
-    @test !isopen(lc)
+        @test length(lc) == l
+        cc = collect(lc)
+        @test length(cc) == l
+        @test cc == 1:l
+        @test !isopen(lc)
 
 
-    lc = LengthChannel{Int}(l, b, spawn=true) do ch
-        for i = 1:100
-            put!(ch, i)
+        lc = LengthChannel{Int}(l, b, spawn=true) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
         end
+
+        @test length(lc) == l
+        cc = collect(lc)
+        @test length(cc) == l
+        @test cc == 1:l
+        @test !isopen(lc)
+
     end
 
-    @test length(lc) == l
-    cc = collect(lc)
-    @test length(cc) == l
-    @test cc == 1:l
-    @test !isopen(lc)
+    @testset "Untyped constructors" begin
+        @info "Testing Untyped constructors"
 
 
 
-
-    lc = LengthChannel(l, b) do ch
-        for i = 1:100
-            put!(ch, i)
+        lc = LengthChannel(l, b) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
         end
+
+        @test eltype(lc) == Any
+        @test length(lc) == l
+        cc = collect(lc)
+        @test length(cc) == l
+        @test cc == 1:l
+        @test !isopen(lc)
+
+
+        lc = LengthChannel(l, b)
+        @test length(lc) == l
+        put!(lc, 1)
+        @test length(lc) == l
+
+        @test take!(lc) == 1
+
+        @test !isready(lc)
+
     end
 
-    @test eltype(lc) == Any
-    @test length(lc) == l
-    cc = collect(lc)
-    @test length(cc) == l
-    @test cc == 1:l
-    @test !isopen(lc)
+
+    @testset "Manual interaction" begin
+        @info "Testing Manual interaction"
 
 
-    lc = LengthChannel(l, b)
-    @test length(lc) == l
-    put!(lc, 1)
-    @test length(lc) == l
 
-    @test take!(lc) == 1
+        lc = LengthChannel{Int}(l, b)
+        @test length(lc) == l
+        put!(lc, 1)
+        @test length(lc) == l
 
-    @test !isready(lc)
+        @test take!(lc) == 1
 
+        @test !isready(lc)
 
-    lc = LengthChannel{Int}(l, b)
-    @test length(lc) == l
-    put!(lc, 1)
-    @test length(lc) == l
+    end
 
-    @test take!(lc) == 1
-
-    @test !isready(lc)
+    @testset "Iteration" begin
+        @info "Testing Iteration"
 
 
-    lc = LengthChannel{Int}(l, b) do ch
-        for i = 1:100
-            put!(ch, i)
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
         end
-    end
 
-    c = 0
-    for e in lc
-        c += 1
-        @test e == c
-    end
-    @test c == l
-
-
-    lc = LengthChannel{Int}(l, b) do ch
-        for i = 1:5
-            put!(ch, i)
+        c = 0
+        for e in lc
+            c += 1
+            @test e == c
         end
+        @test c == l
+
     end
 
-    @test length(lc) == l
-    cc = collect(lc)
-    @test length(cc) == l
-    @test cc[1:5] == 1:5
-    @test !isopen(lc)
+    @testset "Channel closes early" begin
+        @info "Testing Channel closes early"
 
-
-
-    lc = LengthChannel{Int}(l, b) do ch
-        for i = 1:5
-            put!(ch, i)
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:5
+                put!(ch, i)
+            end
         end
+
+        @test length(lc) == l
+        cc = collect(lc)
+        @test length(cc) == l
+        @test cc[1:5] == 1:5
+        @test !isopen(lc)
+
+
+
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:5
+                put!(ch, i)
+            end
+        end
+
+        c = 0
+        for e in lc
+            c += 1
+            @test e == c
+        end
+        @test c == 5
+
     end
-
-    c = 0
-    for e in lc
-        c += 1
-        @test e == c
-    end
-    @test c == 5
-
-
 end
