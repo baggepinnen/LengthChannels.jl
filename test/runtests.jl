@@ -9,6 +9,8 @@ using Test
         end
     end
 
+    @test eltype(lc) <: Int
+
     @test length(lc) == l
     cc = collect(lc)
     @test length(cc) == l
@@ -37,6 +39,7 @@ using Test
         end
     end
 
+    @test eltype(lc) == Any
     @test length(lc) == l
     cc = collect(lc)
     @test length(cc) == l
@@ -76,6 +79,34 @@ using Test
         @test e == c
     end
     @test c == l
+
+
+    lc = LengthChannel{Int}(l, b) do ch
+        for i = 1:5
+            put!(ch, i)
+        end
+    end
+
+    @test length(lc) == l
+    cc = collect(lc)
+    @test length(cc) == l
+    @test cc[1:5] == 1:5
+    @test !isopen(lc)
+
+
+
+    lc = LengthChannel{Int}(l, b) do ch
+        for i = 1:5
+            put!(ch, i)
+        end
+    end
+
+    c = 0
+    for e in lc
+        c += 1
+        @test e == c
+    end
+    @test c == 5
 
 
 end

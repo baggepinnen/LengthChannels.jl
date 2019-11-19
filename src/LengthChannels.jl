@@ -27,13 +27,13 @@ end
 
 Base.length(lc::LengthChannel) = lc.l
 
-for f in (bind, close, fetch, isopen, isready, lock, popfirst!, push!, put!, take!, trylock, unlock, wait)
+for f in (bind, close, fetch, isopen, isready, lock, popfirst!, push!, put!, take!, trylock, unlock, wait, eltype)
     f = nameof(f)
     @eval Base.$f(lc::LengthChannel, args...; kwargs...) = $(f)(lc.ch, args...; kwargs...)
 end
 
 function Base.iterate(lc::LengthChannel, state=0)
-    if state == length(lc)
+    if state == length(lc) || !isopen(lc)
         close(lc)
         return nothing
     end
