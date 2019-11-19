@@ -11,7 +11,7 @@ function LengthChannel{T}(l::Int, args...; kwargs...) where T
 end
 
 function LengthChannel(l::Int, args...; kwargs...)
-    ch = Channel(args...; kwargs...)
+    ch = Channel{Any}(args...; kwargs...)
     LengthChannel{Any}(ch, l)
 end
 
@@ -21,7 +21,7 @@ function LengthChannel{T}(f::Function, l::Int, args...; kwargs...) where T
 end
 
 function LengthChannel(f::Function, l::Int, args...; kwargs...)
-    ch = Channel(f, args...; kwargs...)
+    ch = Channel{Any}(f, args...; kwargs...)
     LengthChannel{Any}(ch, l)
 end
 
