@@ -15,6 +15,7 @@ using Test
     @test cc == 1:l
     @test !isopen(lc)
 
+
     lc = LengthChannel{Int}(l, b, spawn=true) do ch
         for i = 1:100
             put!(ch, i)
@@ -26,6 +27,8 @@ using Test
     @test length(cc) == l
     @test cc == 1:l
     @test !isopen(lc)
+
+
 
 
     lc = LengthChannel(l, b) do ch
