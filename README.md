@@ -23,7 +23,7 @@ cc = collect(lc)
 @test isopen(lc)
 ```
 
-The constructor to a `LengthChannel` takes a keyword argument `autoclose=false (default)` which determines if the channel closes automatically after having iterated for the specified length. It might be useful to keep it open if you want to iterate the specified length several times. Just make sure the channel is still being populated.
+The constructor to a `LengthChannel` takes a keyword argument `autoclose=false (default)` which determines if the channel closes automatically after having iterated for the specified length. It might be useful to keep it open if you want to iterate the specified length several times, e.g. by performing several epochs of training. Just make sure the channel is still being populated, using e.g. the `while true` pattern below.
 
 
 
