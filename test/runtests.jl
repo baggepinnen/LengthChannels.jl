@@ -165,4 +165,39 @@ using Test
         @test c == 5
 
     end
+
+    @testset "Wrapping LengthChannel" begin
+        @info "Testing Wrapping LengthChannel"
+
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
+        end
+        wlc = LengthChannel{Float64}(x->Float64(x^2), lc)
+
+        @test eltype(wlc) <: Float64
+
+        @test length(wlc) == l
+        cc = collect(wlc)
+        @test length(cc) == l
+        @test cc == (1:l).^2
+        @test isopen(wlc)
+
+        lc = LengthChannel{Int}(l, b) do ch
+            for i = 1:100
+                put!(ch, i)
+            end
+        end
+        f(x) = x^2
+        f(::Type) = Float64
+        wlc = LengthChannel(f, lc)
+        @test eltype(wlc) <: Float64
+
+        @test length(wlc) == l
+        cc = collect(wlc)
+        @test length(cc) == l
+        @test cc == (1:l).^2
+        @test isopen(wlc)
+    end
 end

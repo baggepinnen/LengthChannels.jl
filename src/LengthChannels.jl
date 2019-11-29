@@ -101,6 +101,29 @@ function LengthChannel(f::Function, l::Int, args...; autoclose=false, kwargs...)
     LengthChannel{Any}(ch, l, autoclose)
 end
 
+"""
+    LengthChannel(f::Function, channel::LengthChannel; kwargs...)
+    LengthChannel{T}(f::Function, channel::LengthChannel; kwargs...)
+
+Wraps a channel in a new channel, applying `f` to each element of the original channel. This can be useful to, e.g., allow the inner channel to read and pre-process data on a separate thread using `spawn=true`, while forcing the wrapper channel to operate on the main thread. This is required for `f` that are not thread safe, notably `f=cu` or `f=gpu` which puts data on a GPU.
+
+If `T` is omitted while wrapping a channel, it is assumed that `f(eltype(dataset)) == typeof(f(::eltype(dataset)))` or in words, `f` must have a method returning the type resulting from applying `f` to an element of the wrapped channel.
+"""
+function LengthChannel(adaptor, channel::LengthChannel{T}; kwargs...) where T
+    gT = adaptor(T)
+    LengthChannel{gT}(adaptor, channel::LengthChannel; kwargs...)
+end
+
+function LengthChannel{gT}(adaptor, channel::LengthChannel; kwargs...) where gT
+    LengthChannel{gT}(length(channel), channel.ch.sz_max; kwargs...) do ch
+        while true
+            for d in channel
+                put!(ch, adaptor(d))
+            end
+        end
+    end
+end
+
 Base.length(lc::LengthChannel) = lc.l
 
 for f in (bind, close, fetch, isopen, isready, lock, popfirst!, push!, put!, take!, trylock, unlock, wait, eltype)

@@ -67,3 +67,10 @@ dataset = LengthChannel{Array{Float32,4}}(length(files)÷batchsize, buffersize, 
 end
 ```
 where `height,width,nchannels` are integers specifying the size of your data.
+
+## Putting data on GPU
+You may not put data on the GPU from any other thread than the main thread, hence `spawn=false` is required for a channel putting data on GPU. To still allow reading and preprocessing on a separate thread (this is more performant), we provide the wrapper constructor `LengthChannel{T}(f, dataset::LengthChannel)`, which returns a new `LengthChannel` where `f` is applied to each element of `dataset`.
+
+If `T` is omitted while wrapping a channel, it is assumed that `f(eltype(dataset)) == typeof(f(::eltype(dataset)))` or in words, `f` must have a method returning the type resulting from applying `f` to an element of the wrapped channel.
+
+By having `f=cu` or `f=gpu` which puts data on a GPU, you now have an efficient way of training models on the GPU, while reading data in a separate thread. Primitive benchmarking showed some 0-20% performance improvement using this strategy over putting data on the GPU as it is taken out of the dataset. If `cu/gpu` become thread-safe, this improvement may become larger. 
