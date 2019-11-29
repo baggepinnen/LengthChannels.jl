@@ -1,7 +1,7 @@
 name = "LengthChannels"
 uuid = "6e84ca90-c4c0-49b1-bdb7-24cdbeba32de"
 authors = ["Fredrik Bagge Carlson <baggepinnen@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [compat]
 julia = "1.3"
