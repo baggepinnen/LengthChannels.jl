@@ -1,5 +1,5 @@
 module LengthChannels
-export LengthChannel
+export LengthChannel, fullsizeof
 
 """
 This package defines a type `LengthChannel{T} <: AbstractChannel{T}` which simply adds information about the length of the channel when it is iterated. The constructor behaves the same as the constructor for `Channel`, but takes an additional integer specifying the length. This length is not to be confused with the buffer size of the channel, referred to as `buf` in the example below. When a `LengthChannel` is iterated, it continues until it has iterated the specified number of elements, after that the channel is closed, even if there are more elements put in the channel.
@@ -125,6 +125,16 @@ function LengthChannel{gT}(adaptor, channel::LengthChannel; kwargs...) where gT
 end
 
 Base.length(lc::LengthChannel) = lc.l
+
+"""
+    fullsizeof(lc::LengthChannel)
+
+Return the sum of `sizeof` over all elements, assuming they all have the same `sizeof`.
+"""
+function fullsizeof(lc::LengthChannel)
+    isready(lc) || error("Channel is not ready")
+    sizeof(fetch(lc))*length(lc)
+end
 
 for f in (bind, close, fetch, isopen, isready, lock, popfirst!, push!, put!, take!, trylock, unlock, wait, eltype)
     f = nameof(f)

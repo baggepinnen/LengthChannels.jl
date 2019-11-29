@@ -13,6 +13,8 @@ using Test
             end
         end
 
+        @test fullsizeof(lc) == l*sizeof(1)
+
         @test eltype(lc) <: Int
 
         @test length(lc) == l

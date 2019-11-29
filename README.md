@@ -73,4 +73,6 @@ You may not put data on the GPU from any other thread than the main thread, henc
 
 If `T` is omitted while wrapping a channel, it is assumed that `f(eltype(dataset)) == typeof(f(::eltype(dataset)))` or in words, `f` must have a method returning the type resulting from applying `f` to an element of the wrapped channel.
 
-By having `f=cu` or `f=gpu` which puts data on a GPU, you now have an efficient way of training models on the GPU, while reading data in a separate thread. Primitive benchmarking showed some 0-20% performance improvement using this strategy over putting data on the GPU as it is taken out of the dataset. If `cu/gpu` become thread-safe, this improvement may become larger. 
+By having `f=cu` or `f=gpu` which puts data on a GPU, you now have an efficient way of training models on the GPU, while reading data in a separate thread. Primitive benchmarking showed some 0-20% performance improvement using this strategy over putting data on the GPU as it is taken out of the dataset. If `cu/gpu` become thread-safe, this improvement may become larger.
+
+*Note:* If your entire dataset fit onto the GPU and you do not run out of memory while performing backpropagation, the fastest method is *by far* to keep all data on the GPU during the entire training. You can try by simply `gpu.(collect(dataset))` or `collect(dataset)` if the channel already puts data on the GPU. The function `fullsizeof(dataset::LengthChannel)` will tell you the size in bytes required to `collect` the dataset.
