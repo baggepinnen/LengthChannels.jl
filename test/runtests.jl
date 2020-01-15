@@ -146,8 +146,10 @@ using Test
         end
 
         @test length(lc) == l
-        @test_throws InvalidStateException collect(lc)
-        @test !isopen(lc)
+        if VERSION > v"1.3.100"
+            @test_throws InvalidStateException collect(lc)
+            @test !isopen(lc)
+        end
 
 
 
@@ -161,7 +163,7 @@ using Test
             @test e == first(lc)
         end
         sleep(0.1) # it seems to take a while to close it
-        @test !isopen(lc)
+        VERSION > v"1.3.100" && @test !isopen(lc)
 
     end
 
