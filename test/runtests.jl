@@ -146,9 +146,7 @@ using Test
         end
 
         @test length(lc) == l
-        cc = collect(lc)
-        @test length(cc) == l
-        @test cc[1:5] == 1:5
+        @test_throws InvalidStateException collect(lc)
         @test !isopen(lc)
 
 
@@ -159,12 +157,11 @@ using Test
             end
         end
 
-        c = 0
-        for e in lc
-            c += 1
-            @test e == c
+        for e in 1:5
+            @test e == first(lc)
         end
-        @test c == 5
+        sleep(0.1) # it seems to take a while to close it
+        @test !isopen(lc)
 
     end
 
